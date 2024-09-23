@@ -1,13 +1,21 @@
-FROM pytorch/pytorch:2.0.0-cuda11.7-cudnn8-devel
+FROM rapidsai/base:24.10a-cuda12.0-py3.10
+
+USER root
 
 RUN apt-get update && apt-get install -y build-essential git gcc g++
 
 RUN git clone https://github.com/facebookresearch/dinov2.git
 
+COPY requirements.txt requirements-extras.txt .
+
+RUN pip install --upgrade pip
+
+RUN pip install torch==2.0.0+cu118 torchvision==0.15.1+cu118 -f https://download.pytorch.org/whl/torch_stable.html
+
+RUN pip install -r requirements.txt -r requirements-extras.txt
+
 COPY . /app
 
 WORKDIR /app
-
-RUN pip install -r /app/requirements.txt -r /app/requirements-extras.txt
 
 ENTRYPOINT [ "/entrypoint.sh" ]
